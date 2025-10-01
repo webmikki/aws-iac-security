@@ -1,0 +1,259 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-01",
+  "description": "AWS Security Infrastructure Analysis Patterns",
+  "patterns": {
+    "network_security": [
+      {
+        "id": "WIDE_SSH_ACCESS",
+        "pattern": "Peer\\.anyIpv4\\(\\)",
+        "severity": "HIGH",
+        "category": "NETWORK_SECURITY",
+        "title": "SSH Access from Anywhere",
+        "description": "SSH port 22 is open to all IP addresses (0.0.0.0/0)",
+        "recommendation": "Restrict SSH access to specific IP ranges or use SSM Session Manager",
+        "standards": ["CIS-4.2", "NIST-CSF-PR.AC-5"],
+        "enabled": true
+      },
+      {
+        "id": "WIDE_HTTP_ACCESS",
+        "pattern": "Peer\\.anyIpv4\\(\\)",
+        "severity": "MEDIUM",
+        "category": "NETWORK_SECURITY",
+        "title": "HTTP Access from Anywhere",
+        "description": "HTTP port 80 is open to all IP addresses",
+        "recommendation": "Consider using HTTPS only or restrict to specific IPs",
+        "standards": ["CIS-4.2", "NIST-CSF-PR.AC-5"],
+        "enabled": true
+      },
+      {
+        "id": "WIDE_HTTPS_ACCESS",
+        "pattern": "Peer\\.anyIpv4\\(\\)",
+        "severity": "MEDIUM",
+        "category": "NETWORK_SECURITY",
+        "title": "HTTPS Access from Anywhere",
+        "description": "HTTPS port 443 is open to all IP addresses",
+        "recommendation": "Consider using WAF or restricting to specific IPs",
+        "standards": ["CIS-4.2", "NIST-CSF-PR.AC-5"],
+        "enabled": true
+      },
+      {
+        "id": "ALLOW_ALL_OUTBOUND",
+        "pattern": "allowAllOutbound\\(true\\)",
+        "severity": "MEDIUM",
+        "category": "NETWORK_SECURITY",
+        "title": "Unrestricted Outbound Access",
+        "description": "Security group allows all outbound traffic",
+        "recommendation": "Implement least privilege outbound rules",
+        "standards": ["CIS-4.1", "NIST-CSF-PR.AC-5"],
+        "enabled": true
+      },
+      {
+        "id": "OPEN_SECURITY_GROUP",
+        "pattern": "addIngressRule\\(.*Peer\\.anyIpv4\\(\\).*Port\\.tcp\\(22\\)",
+        "severity": "HIGH",
+        "category": "NETWORK_SECURITY",
+        "title": "Open SSH Security Group",
+        "description": "Security group allows SSH access from any IP address",
+        "recommendation": "Restrict SSH access to specific IP ranges or use SSM Session Manager",
+        "standards": ["CIS-4.2", "NIST-CSF-PR.AC-5"],
+        "enabled": true
+      }
+    ],
+    "iam_security": [
+      {
+        "id": "BROAD_EC2_ROLE",
+        "pattern": "ServicePrincipal\\(\"ec2\\.amazonaws\\.com\"\\)",
+        "severity": "LOW",
+        "category": "ACCESS_CONTROL",
+        "title": "EC2 Service Principal",
+        "description": "EC2 instance has IAM role attached",
+        "recommendation": "Ensure role follows least privilege principle",
+        "standards": ["CIS-1.16", "NIST-CSF-PR.AC-1"],
+        "enabled": true
+      },
+      {
+        "id": "MANAGED_POLICIES",
+        "pattern": "ManagedPolicy\\.fromAwsManagedPolicyName",
+        "severity": "INFO",
+        "category": "ACCESS_CONTROL",
+        "title": "AWS Managed Policies",
+        "description": "Using AWS managed policies",
+        "recommendation": "Review if custom policies would be more restrictive",
+        "standards": ["CIS-1.16", "NIST-CSF-PR.AC-1"],
+        "enabled": true
+      },
+      {
+        "id": "BROAD_IAM_PERMISSIONS",
+        "pattern": "addManagedPolicy\\(.*CloudWatchAgentServerPolicy",
+        "severity": "LOW",
+        "category": "ACCESS_CONTROL",
+        "title": "Broad IAM Permissions",
+        "description": "EC2 role has broad CloudWatch permissions",
+        "recommendation": "Review and restrict CloudWatch permissions to specific resources",
+        "standards": ["CIS-1.16", "NIST-CSF-PR.AC-1"],
+        "enabled": true
+      }
+    ],
+    "infrastructure_security": [
+      {
+        "id": "PUBLIC_SUBNET_PLACEMENT",
+        "pattern": "SubnetType\\.PUBLIC",
+        "severity": "MEDIUM",
+        "category": "INFRASTRUCTURE_SECURITY",
+        "title": "Resources in Public Subnet",
+        "description": "EC2 instance placed in public subnet",
+        "recommendation": "Consider using private subnets with NAT Gateway",
+        "standards": ["CIS-4.3", "NIST-CSF-PR.AC-5"],
+        "enabled": true
+      },
+      {
+        "id": "NO_ENCRYPTION_AT_REST",
+        "pattern": "Instance\\.Builder\\.create.*\\.build\\(\\)",
+        "severity": "MEDIUM",
+        "category": "DATA_PROTECTION",
+        "title": "No Encryption at Rest",
+        "description": "EC2 instance without encryption at rest",
+        "recommendation": "Enable EBS encryption for data protection",
+        "standards": ["CIS-2.1", "NIST-CSF-PR.DS-1"],
+        "enabled": true
+      },
+      {
+        "id": "NO_MONITORING",
+        "pattern": "CloudWatch|Monitoring|Logging",
+        "severity": "LOW",
+        "category": "MONITORING",
+        "title": "Limited Monitoring",
+        "description": "No explicit CloudWatch monitoring configuration",
+        "recommendation": "Implement comprehensive monitoring and alerting",
+        "standards": ["CIS-3.1", "NIST-CSF-DE.AE-1"],
+        "enabled": true
+      },
+      {
+        "id": "DEFAULT_VPC_USAGE",
+        "pattern": "Vpc\\.fromLookup|Vpc\\.fromVpcAttributes",
+        "severity": "LOW",
+        "category": "INFRASTRUCTURE_SECURITY",
+        "title": "Default VPC Usage",
+        "description": "Using default VPC instead of custom VPC",
+        "recommendation": "Create custom VPC with proper network segmentation",
+        "standards": ["CIS-4.3", "NIST-CSF-PR.AC-5"],
+        "enabled": false
+      }
+    ],
+    "deployment_security": [
+      {
+        "id": "AUTO_APPROVAL",
+        "pattern": "--require-approval never",
+        "severity": "HIGH",
+        "category": "DEPLOYMENT_SECURITY",
+        "title": "Automatic Deployment Approval",
+        "description": "CDK deployment without manual approval",
+        "recommendation": "Require manual approval for production deployments",
+        "standards": ["CIS-2.3", "NIST-CSF-PR.IP-1"],
+        "enabled": true
+      },
+      {
+        "id": "NO_BOOTSTRAP_VALIDATION",
+        "pattern": "cdk bootstrap.*if.*errorlevel",
+        "severity": "MEDIUM",
+        "category": "DEPLOYMENT_SECURITY",
+        "title": "Bootstrap Error Handling",
+        "description": "CDK bootstrap errors are ignored",
+        "recommendation": "Properly handle bootstrap failures",
+        "standards": ["CIS-2.3", "NIST-CSF-PR.IP-1"],
+        "enabled": true
+      },
+      {
+        "id": "HARDCODED_CREDENTIALS",
+        "pattern": "aws_access_key_id|aws_secret_access_key|password|secret",
+        "severity": "HIGH",
+        "category": "DEPLOYMENT_SECURITY",
+        "title": "Hardcoded Credentials",
+        "description": "Potential hardcoded credentials in deployment scripts",
+        "recommendation": "Use environment variables or AWS Secrets Manager",
+        "standards": ["CIS-1.4", "NIST-CSF-PR.AC-1"],
+        "enabled": true
+      }
+    ],
+    "data_protection": [
+      {
+        "id": "NO_SSL_TLS",
+        "pattern": "http://|HTTP://",
+        "severity": "HIGH",
+        "category": "DATA_PROTECTION",
+        "title": "Unencrypted HTTP Traffic",
+        "description": "HTTP traffic without SSL/TLS encryption",
+        "recommendation": "Use HTTPS for all web traffic",
+        "standards": ["CIS-2.1", "NIST-CSF-PR.DS-1"],
+        "enabled": true
+      },
+      {
+        "id": "WEAK_SSL_CONFIG",
+        "pattern": "TLSv1\\.0|TLSv1\\.1|SSLv2|SSLv3",
+        "severity": "MEDIUM",
+        "category": "DATA_PROTECTION",
+        "title": "Weak SSL/TLS Configuration",
+        "description": "Using weak or deprecated SSL/TLS versions",
+        "recommendation": "Use TLS 1.2 or higher for all connections",
+        "standards": ["CIS-2.1", "NIST-CSF-PR.DS-1"],
+        "enabled": true
+      }
+    ],
+    "compliance": [
+      {
+        "id": "MISSING_TAGS",
+        "pattern": "Tags\\.of\\(.*\\)\\.add",
+        "severity": "LOW",
+        "category": "COMPLIANCE",
+        "title": "Resource Tagging",
+        "description": "Resources should have proper tagging for compliance",
+        "recommendation": "Implement consistent resource tagging strategy",
+        "standards": ["CIS-1.20", "NIST-CSF-PR.IP-1"],
+        "enabled": false
+      },
+      {
+        "id": "NO_BACKUP_STRATEGY",
+        "pattern": "backup|snapshot|recovery",
+        "severity": "MEDIUM",
+        "category": "COMPLIANCE",
+        "title": "No Backup Strategy",
+        "description": "No backup or disaster recovery strategy implemented",
+        "recommendation": "Implement automated backup and recovery procedures",
+        "standards": ["CIS-2.8", "NIST-CSF-PR.IP-1"],
+        "enabled": true
+      }
+    ]
+  },
+  "severity_levels": {
+    "HIGH": {
+      "priority": 1,
+      "color": "red",
+      "description": "Critical security issues requiring immediate attention"
+    },
+    "MEDIUM": {
+      "priority": 2,
+      "color": "orange",
+      "description": "Important security concerns that should be reviewed"
+    },
+    "LOW": {
+      "priority": 3,
+      "color": "yellow",
+      "description": "Minor security improvements"
+    },
+    "INFO": {
+      "priority": 4,
+      "color": "blue",
+      "description": "Best practices and positive security implementations"
+    }
+  },
+  "categories": {
+    "NETWORK_SECURITY": "Network and firewall related security issues",
+    "ACCESS_CONTROL": "Identity and access management issues",
+    "INFRASTRUCTURE_SECURITY": "Infrastructure configuration and placement issues",
+    "DATA_PROTECTION": "Data encryption and protection issues",
+    "DEPLOYMENT_SECURITY": "Deployment and CI/CD security issues",
+    "MONITORING": "Logging and monitoring related issues",
+    "COMPLIANCE": "Compliance and governance issues"
+  }
+}

@@ -1,0 +1,13 @@
+# AWS Security Infrastructure Analyzer Dependencies
+# ================================================
+
+# Core dependencies (required)
+# No external dependencies for basic functionality
+
+# PDF generation (optional)
+# Install with: pip install reportlab
+reportlab>=3.6.0
+
+# Additional optional dependencies for enhanced functionality
+# colorama>=0.4.4  # For better Windows console colors
+# rich>=12.0.0     # For enhanced console output

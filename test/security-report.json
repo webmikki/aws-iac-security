@@ -1,0 +1,288 @@
+{
+  "analysis_date": "2025-10-01T18:53:09.545911",
+  "infrastructure_path": "..\\infra",
+  "total_findings": 19,
+  "findings": [
+    {
+      "id": "ALLOW_ALL_OUTBOUND",
+      "severity": "MEDIUM",
+      "category": "NETWORK_SECURITY",
+      "title": "Unrestricted Outbound Access",
+      "description": "Security group allows all outbound traffic",
+      "recommendation": "Implement least privilege outbound rules",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 92,
+      "code_snippet": "     89:                 .vpc(vpc)                                       // Associate with our VPC\n     90:                 .securityGroupName(\"aws-security-ec2-sg\")       // Human-readable name for the security group\n     91:                 .description(\"Security group for AWS Security EC2 instance\")\n>>>  92:                 .allowAllOutbound(true)                         // Allow all outbound traffic by default\n     93:                 .build();\n     94: \n     95:         // ============================================================================",
+      "standards": [
+        "CIS-4.1",
+        "NIST-CSF-PR.AC-5"
+      ]
+    },
+    {
+      "id": "BROAD_EC2_ROLE",
+      "severity": "LOW",
+      "category": "ACCESS_CONTROL",
+      "title": "EC2 Service Principal",
+      "description": "EC2 instance has IAM role attached",
+      "recommendation": "Ensure role follows least privilege principle",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 134,
+      "code_snippet": "    131:         // IAM roles provide temporary credentials and permissions to AWS services\n    132:         Role ec2Role = Role.Builder.create(this, \"AwsIacSecurityEC2Role\")\n    133:                 .roleName(\"aws-security-ec2-role\")              // Human-readable name for the IAM role\n>>> 134:                 .assumedBy(new ServicePrincipal(\"ec2.amazonaws.com\"))  // Allow EC2 service to assume this role\n    135:                 .managedPolicies(java.util.Arrays.asList(\n    136:                         // Attach AWS managed policy for Systems Manager (SSM)\n    137:                         // This enables SSM Session Manager for secure access without SSH keys",
+      "standards": [
+        "CIS-1.16",
+        "NIST-CSF-PR.AC-1"
+      ]
+    },
+    {
+      "id": "MANAGED_POLICIES",
+      "severity": "INFO",
+      "category": "ACCESS_CONTROL",
+      "title": "AWS Managed Policies",
+      "description": "Using AWS managed policies",
+      "recommendation": "Review if custom policies would be more restrictive",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 138,
+      "code_snippet": "    135:                 .managedPolicies(java.util.Arrays.asList(\n    136:                         // Attach AWS managed policy for Systems Manager (SSM)\n    137:                         // This enables SSM Session Manager for secure access without SSH keys\n>>> 138:                         ManagedPolicy.fromAwsManagedPolicyName(\"AmazonSSMManagedInstanceCore\")\n    139:                 ))\n    140:                 .build();\n    141: ",
+      "standards": [
+        "CIS-1.16",
+        "NIST-CSF-PR.AC-1"
+      ]
+    },
+    {
+      "id": "MANAGED_POLICIES",
+      "severity": "INFO",
+      "category": "ACCESS_CONTROL",
+      "title": "AWS Managed Policies",
+      "description": "Using AWS managed policies",
+      "recommendation": "Review if custom policies would be more restrictive",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 149,
+      "code_snippet": "    146:         // This allows the EC2 instance to send logs to CloudWatch\n    147:         // Useful for centralized logging and monitoring\n    148:         ec2Role.addManagedPolicy(\n>>> 149:                 ManagedPolicy.fromAwsManagedPolicyName(\"CloudWatchAgentServerPolicy\")\n    150:         );\n    151: \n    152:         // ============================================================================",
+      "standards": [
+        "CIS-1.16",
+        "NIST-CSF-PR.AC-1"
+      ]
+    },
+    {
+      "id": "PUBLIC_SUBNET_PLACEMENT",
+      "severity": "MEDIUM",
+      "category": "INFRASTRUCTURE_SECURITY",
+      "title": "Resources in Public Subnet",
+      "description": "EC2 instance placed in public subnet",
+      "recommendation": "Consider using private subnets with NAT Gateway",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 67,
+      "code_snippet": "     64:                         // Resources in public subnets can have public IP addresses\n     65:                         SubnetConfiguration.builder()\n     66:                                 .name(\"aws-security-public\")    // Logical name for public subnets\n>>>  67:                                 .subnetType(SubnetType.PUBLIC) // Subnet type: PUBLIC\n     68:                                 .cidrMask(24)                  // Each subnet gets /24 (256 IPs): 10.0.1.0/24, 10.0.2.0/24\n     69:                                 .build(),\n     70:                         // Private Subnet Configuration  ",
+      "standards": [
+        "CIS-4.3",
+        "NIST-CSF-PR.AC-5"
+      ]
+    },
+    {
+      "id": "PUBLIC_SUBNET_PLACEMENT",
+      "severity": "MEDIUM",
+      "category": "INFRASTRUCTURE_SECURITY",
+      "title": "Resources in Public Subnet",
+      "description": "EC2 instance placed in public subnet",
+      "recommendation": "Consider using private subnets with NAT Gateway",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 163,
+      "code_snippet": "    160:                 .machineImage(MachineImage.latestAmazonLinux2())                     // Latest Amazon Linux 2 AMI\n    161:                 .vpc(vpc)                                                             // Deploy in our custom VPC\n    162:                 .vpcSubnets(SubnetSelection.builder()\n>>> 163:                         .subnetType(SubnetType.PUBLIC)                               // Place in public subnet for internet access\n    164:                         .build())\n    165:                 .securityGroup(ec2SecurityGroup)                                     // Apply our security group\n    166:                 .role(ec2Role)                                                       // Attach the IAM role",
+      "standards": [
+        "CIS-4.3",
+        "NIST-CSF-PR.AC-5"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 18,
+      "code_snippet": "     15:  * - An EC2 instance (t2.micro) that is free tier eligible\n     16:  * - Security groups with appropriate ingress rules\n     17:  * - IAM roles with least privilege access\n>>>  18:  * - CloudWatch integration for monitoring\n     19:  * \n     20:  * The infrastructure follows AWS security best practices and is designed\n     21:  * to be cost-effective using free tier resources where possible.",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 18,
+      "code_snippet": "     15:  * - An EC2 instance (t2.micro) that is free tier eligible\n     16:  * - Security groups with appropriate ingress rules\n     17:  * - IAM roles with least privilege access\n>>>  18:  * - CloudWatch integration for monitoring\n     19:  * \n     20:  * The infrastructure follows AWS security best practices and is designed\n     21:  * to be cost-effective using free tier resources where possible.",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 145,
+      "code_snippet": "    142:         // ============================================================================\n    143:         // ADDITIONAL IAM PERMISSIONS\n    144:         // ============================================================================\n>>> 145:         // Add CloudWatch Logs permissions to the EC2 role\n    146:         // This allows the EC2 instance to send logs to CloudWatch\n    147:         // Useful for centralized logging and monitoring\n    148:         ec2Role.addManagedPolicy(",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 146,
+      "code_snippet": "    143:         // ADDITIONAL IAM PERMISSIONS\n    144:         // ============================================================================\n    145:         // Add CloudWatch Logs permissions to the EC2 role\n>>> 146:         // This allows the EC2 instance to send logs to CloudWatch\n    147:         // Useful for centralized logging and monitoring\n    148:         ec2Role.addManagedPolicy(\n    149:                 ManagedPolicy.fromAwsManagedPolicyName(\"CloudWatchAgentServerPolicy\")",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 147,
+      "code_snippet": "    144:         // ============================================================================\n    145:         // Add CloudWatch Logs permissions to the EC2 role\n    146:         // This allows the EC2 instance to send logs to CloudWatch\n>>> 147:         // Useful for centralized logging and monitoring\n    148:         ec2Role.addManagedPolicy(\n    149:                 ManagedPolicy.fromAwsManagedPolicyName(\"CloudWatchAgentServerPolicy\")\n    150:         );",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 147,
+      "code_snippet": "    144:         // ============================================================================\n    145:         // Add CloudWatch Logs permissions to the EC2 role\n    146:         // This allows the EC2 instance to send logs to CloudWatch\n>>> 147:         // Useful for centralized logging and monitoring\n    148:         ec2Role.addManagedPolicy(\n    149:                 ManagedPolicy.fromAwsManagedPolicyName(\"CloudWatchAgentServerPolicy\")\n    150:         );",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "NO_MONITORING",
+      "severity": "LOW",
+      "category": "MONITORING",
+      "title": "Limited Monitoring",
+      "description": "No explicit CloudWatch monitoring configuration",
+      "recommendation": "Implement comprehensive monitoring and alerting",
+      "file_path": "..\\infra\\src\\main\\java\\com\\aws-iac-security\\AwsIacSecurityStack.java",
+      "line_number": 149,
+      "code_snippet": "    146:         // This allows the EC2 instance to send logs to CloudWatch\n    147:         // Useful for centralized logging and monitoring\n    148:         ec2Role.addManagedPolicy(\n>>> 149:                 ManagedPolicy.fromAwsManagedPolicyName(\"CloudWatchAgentServerPolicy\")\n    150:         );\n    151: \n    152:         // ============================================================================",
+      "standards": [
+        "CIS-3.1",
+        "NIST-CSF-DE.AE-1"
+      ]
+    },
+    {
+      "id": "AUTO_APPROVAL",
+      "severity": "HIGH",
+      "category": "DEPLOYMENT_SECURITY",
+      "title": "Automatic Deployment Approval",
+      "description": "CDK deployment without manual approval",
+      "recommendation": "Require manual approval for production deployments",
+      "file_path": "..\\infra\\deploy.bat",
+      "line_number": 75,
+      "code_snippet": "     72: REM Deploy the stack\n     73: echo.\n     74: echo 🏗️  Deploying infrastructure...\n>>>  75: cdk deploy --require-approval never\n     76: if %errorlevel% neq 0 (\n     77:     echo ❌ Deployment failed.\n     78:     pause",
+      "standards": [
+        "CIS-2.3",
+        "NIST-CSF-PR.IP-1"
+      ]
+    },
+    {
+      "id": "AUTO_APPROVAL",
+      "severity": "HIGH",
+      "category": "DEPLOYMENT_SECURITY",
+      "title": "Automatic Deployment Approval",
+      "description": "CDK deployment without manual approval",
+      "recommendation": "Require manual approval for production deployments",
+      "file_path": "..\\infra\\deploy.sh",
+      "line_number": 67,
+      "code_snippet": "     64: # Deploy the stack\n     65: echo \"\"\n     66: echo \"🏗️  Deploying infrastructure...\"\n>>>  67: cdk deploy --require-approval never\n     68: if [ $? -ne 0 ]; then\n     69:     echo \"❌ Deployment failed.\"\n     70:     exit 1",
+      "standards": [
+        "CIS-2.3",
+        "NIST-CSF-PR.IP-1"
+      ]
+    },
+    {
+      "id": "CDK_CORE_CHECKSECRETUSAGE",
+      "severity": "INFO",
+      "category": "CONFIGURATION_SECURITY",
+      "title": "Secret usage checking enabled",
+      "description": "CDK context setting: @aws-cdk/core:checkSecretUsage",
+      "recommendation": "Good security practice enabled",
+      "file_path": "..\\infra\\cdk.json",
+      "line_number": 1,
+      "code_snippet": "\"@aws-cdk/core:checkSecretUsage\": true",
+      "standards": [
+        "AWS-Well-Architected-Security"
+      ]
+    },
+    {
+      "id": "CDK_AWS-IAM_MINIMIZEPOLICIES",
+      "severity": "INFO",
+      "category": "CONFIGURATION_SECURITY",
+      "title": "IAM policy minimization enabled",
+      "description": "CDK context setting: @aws-cdk/aws-iam:minimizePolicies",
+      "recommendation": "Good security practice enabled",
+      "file_path": "..\\infra\\cdk.json",
+      "line_number": 1,
+      "code_snippet": "\"@aws-cdk/aws-iam:minimizePolicies\": true",
+      "standards": [
+        "AWS-Well-Architected-Security"
+      ]
+    },
+    {
+      "id": "CDK_AWS-EC2_RESTRICTDEFAULTSECURITYGROUP",
+      "severity": "INFO",
+      "category": "CONFIGURATION_SECURITY",
+      "title": "Default security group restriction enabled",
+      "description": "CDK context setting: @aws-cdk/aws-ec2:restrictDefaultSecurityGroup",
+      "recommendation": "Good security practice enabled",
+      "file_path": "..\\infra\\cdk.json",
+      "line_number": 1,
+      "code_snippet": "\"@aws-cdk/aws-ec2:restrictDefaultSecurityGroup\": true",
+      "standards": [
+        "AWS-Well-Architected-Security"
+      ]
+    },
+    {
+      "id": "CDK_AWS-EFS_DENYANONYMOUSACCESS",
+      "severity": "INFO",
+      "category": "CONFIGURATION_SECURITY",
+      "title": "EFS anonymous access denied",
+      "description": "CDK context setting: @aws-cdk/aws-efs:denyAnonymousAccess",
+      "recommendation": "Good security practice enabled",
+      "file_path": "..\\infra\\cdk.json",
+      "line_number": 1,
+      "code_snippet": "\"@aws-cdk/aws-efs:denyAnonymousAccess\": true",
+      "standards": [
+        "AWS-Well-Architected-Security"
+      ]
+    }
+  ]
+}
