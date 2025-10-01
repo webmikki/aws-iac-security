@@ -1,0 +1,146 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-09-30",
+  "description": "AWS Security Infrastructure Analysis Patterns",
+  "securityPatterns": [
+    {
+      "id": "EXCESSIVE_OUTBOUND_ACCESS",
+      "pattern": "allowAllOutbound.*true",
+      "severity": "HIGH",
+      "category": "NETWORK_SECURITY",
+      "description": "Security group allows all outbound traffic",
+      "recommendation": "Consider restricting outbound access to specific ports and destinations",
+      "standards": ["CIS-4.1", "AWS-IAM-BP"],
+      "enabled": true
+    },
+    {
+      "id": "WIDE_INGRESS_ACCESS",
+      "pattern": "Peer\\.anyIpv4\\(\\)",
+      "severity": "HIGH",
+      "category": "NETWORK_SECURITY",
+      "description": "Security group allows access from any IP address (0.0.0.0/0)",
+      "recommendation": "Restrict ingress access to specific IP ranges or use security groups",
+      "standards": ["CIS-4.2", "NIST-CSF-PR.AC-5"],
+      "enabled": true
+    },
+    {
+      "id": "SSH_ACCESS_OPEN",
+      "pattern": "Port\\.tcp\\(22\\)",
+      "severity": "MEDIUM",
+      "category": "ACCESS_CONTROL",
+      "description": "SSH port 22 is open to all IPs",
+      "recommendation": "Consider using SSM Session Manager instead of direct SSH access",
+      "standards": ["CIS-4.3", "AWS-Security-BP"],
+      "enabled": true
+    },
+    {
+      "id": "HTTP_ACCESS_OPEN",
+      "pattern": "Port\\.tcp\\(80\\)",
+      "severity": "LOW",
+      "category": "WEB_SECURITY",
+      "description": "HTTP port 80 is open to all IPs",
+      "recommendation": "Consider using HTTPS only and implementing proper authentication",
+      "standards": ["OWASP-A05", "NIST-CSF-PR.AC-5"],
+      "enabled": true
+    },
+    {
+      "id": "HTTPS_ACCESS_OPEN",
+      "pattern": "Port\\.tcp\\(443\\)",
+      "severity": "LOW",
+      "category": "WEB_SECURITY",
+      "description": "HTTPS port 443 is open to all IPs",
+      "recommendation": "Ensure proper SSL/TLS configuration and certificate management",
+      "standards": ["OWASP-A02", "NIST-CSF-PR.AC-5"],
+      "enabled": true
+    },
+    {
+      "id": "PUBLIC_SUBNET_USAGE",
+      "pattern": "SubnetType\\.PUBLIC",
+      "severity": "MEDIUM",
+      "category": "NETWORK_SECURITY",
+      "description": "Resources deployed in public subnets",
+      "recommendation": "Consider using private subnets with NAT Gateway for better security",
+      "standards": ["AWS-WA-Security", "NIST-CSF-PR.AC-5"],
+      "enabled": true
+    },
+    {
+      "id": "DNS_HOSTNAMES_ENABLED",
+      "pattern": "enableDnsHostnames.*true",
+      "severity": "LOW",
+      "category": "NETWORK_SECURITY",
+      "description": "DNS hostnames are enabled",
+      "recommendation": "Review if DNS hostnames are necessary for your use case",
+      "standards": ["AWS-Networking-BP"],
+      "enabled": true
+    },
+    {
+      "id": "SSM_POLICY_ATTACHED",
+      "pattern": "AmazonSSMManagedInstanceCore",
+      "severity": "INFO",
+      "category": "ACCESS_CONTROL",
+      "description": "SSM managed instance core policy attached",
+      "recommendation": "Good practice for secure access without SSH keys",
+      "standards": ["AWS-IAM-BP", "AWS-Security-BP"],
+      "enabled": true
+    },
+    {
+      "id": "CLOUDWATCH_POLICY_ATTACHED",
+      "pattern": "CloudWatchAgentServerPolicy",
+      "severity": "INFO",
+      "category": "MONITORING",
+      "description": "CloudWatch agent policy attached",
+      "recommendation": "Good practice for centralized logging and monitoring",
+      "standards": ["CIS-3.1", "NIST-CSF-DE.AE-1"],
+      "enabled": true
+    },
+    {
+      "id": "CONSISTENT_NAMING",
+      "pattern": "aws-security-.*",
+      "severity": "INFO",
+      "category": "RESOURCE_MANAGEMENT",
+      "description": "Resources follow consistent naming convention",
+      "recommendation": "Good practice for resource organization and management",
+      "standards": ["AWS-WA-Operational-Excellence", "NIST-CSF-ID.AM-1"],
+      "enabled": true
+    },
+    {
+      "id": "PROJECT_TAGGING",
+      "pattern": "Project.*aws-security-oculus",
+      "severity": "INFO",
+      "category": "RESOURCE_MANAGEMENT",
+      "description": "Resources are properly tagged with project information",
+      "recommendation": "Good practice for cost tracking and resource management",
+      "standards": ["AWS-WA-Cost-Optimization", "NIST-CSF-ID.AM-2"],
+      "enabled": true
+    }
+  ],
+  "categories": {
+    "NETWORK_SECURITY": "Network and firewall related security issues",
+    "ACCESS_CONTROL": "Identity and access management issues",
+    "WEB_SECURITY": "Web application and HTTP/HTTPS security issues",
+    "MONITORING": "Logging and monitoring related issues",
+    "RESOURCE_MANAGEMENT": "Resource naming, tagging, and organization issues"
+  },
+  "severityLevels": {
+    "HIGH": {
+      "priority": 1,
+      "color": "red",
+      "description": "Critical security issues requiring immediate attention"
+    },
+    "MEDIUM": {
+      "priority": 2,
+      "color": "yellow",
+      "description": "Important security concerns that should be reviewed"
+    },
+    "LOW": {
+      "priority": 3,
+      "color": "blue",
+      "description": "Minor security improvements"
+    },
+    "INFO": {
+      "priority": 4,
+      "color": "green",
+      "description": "Best practices and positive security implementations"
+    }
+  }
+}
